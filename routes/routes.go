@@ -3,10 +3,21 @@ package routes
 import (
 	"net/http"
 
+	"github.com/esuEdu/reurb-backend/internal/handlers"
+	"github.com/esuEdu/reurb-backend/internal/repositories"
+	"github.com/esuEdu/reurb-backend/internal/services"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func SetupRoutes(router *gin.Engine) {
+func SetupRoutes(router *gin.Engine, db *gorm.DB) {
+
+	userRepo := repositories.NewUserRepository(db)
+	userService := services.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
+
+	router.POST("/register", userHandler.RegisterUser)
+	router.POST("/login", userHandler.AuthenticateUser)
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})

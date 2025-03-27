@@ -8,11 +8,11 @@ import (
 
 func main() {
 
-	config.InitDB()
+	db := config.InitDB()
 
 	r := gin.Default()
 
-	routes.SetupRoutes(r)
+	routes.SetupRoutes(r, db)
 
 	r.Run()
 }

@@ -9,9 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func InitDB() {
+func InitDB() *gorm.DB {
 
 	env := LoadEnv()
 
@@ -31,5 +29,7 @@ func InitDB() {
 	}
 
 	db.AutoMigrate(&models.User{}) // initial migration
+
+	return db
 
 }
