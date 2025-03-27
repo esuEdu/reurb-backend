@@ -27,6 +27,8 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 		authorized.GET("/ping", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"message": "pong"})
 		})
+
+		authorized.GET("/user/:id", userHandler.GetUserByID)
 	}
 
 }

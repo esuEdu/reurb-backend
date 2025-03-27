@@ -3,16 +3,17 @@ package services
 import (
 	"errors"
 
+	"strconv"
+
 	"github.com/esuEdu/reurb-backend/internal/models"
 	"github.com/esuEdu/reurb-backend/internal/repositories"
 	"github.com/esuEdu/reurb-backend/internal/util"
-	"golang.org/x/crypto/bcrypt"
-	"strconv"
 )
 
 type UserService interface {
 	RegisterUser(name, email, password string) (*models.User, error)
 	AuthenticateUser(email, password string) (string, error)
+	GetUserByID(id uint) (*models.User, error)
 }
 
 type userService struct {
@@ -29,7 +30,7 @@ func (service *userService) RegisterUser(name, email, password string) (*models.
 		return nil, errors.New("user already exists")
 	}
 
-	stringHash, err := hashPassword(password)
+	stringHash, err := util.HashPassword(password)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (service *userService) AuthenticateUser(email, password string) (string, er
 		return "", errors.New("user not found")
 	}
 
-	err = checkPasswordHash(password, user.Password)
+	err = util.CheckPasswordHash(password, user.Password)
 	if err != nil {
 		return "", errors.New("wrong credential")
 	}
@@ -68,12 +69,11 @@ func (service *userService) AuthenticateUser(email, password string) (string, er
 	return token, nil
 }
 
-func hashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(hashedPassword), err
-}
+func (service *userService) GetUserByID(id uint) (*models.User, error) {
+	user, err := service.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
 
-func checkPasswordHash(password, hash string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err
+	return user, nil
 }

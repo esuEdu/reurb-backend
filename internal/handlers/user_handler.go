@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/esuEdu/reurb-backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -55,4 +56,30 @@ func (handler *UserHandler) AuthenticateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Authenticated successfully", "token": token})
+}
+
+func (handler *UserHandler) GetUserByID(c *gin.Context) {
+	// Extract ID from query parameters
+	idStr := c.Param("id")
+	if idStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
+		return
+	}
+
+	// Convert ID to uint
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	// Call service layer
+	user, err := handler.Service.GetUserByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Return user data
+	c.JSON(http.StatusOK, user)
 }
