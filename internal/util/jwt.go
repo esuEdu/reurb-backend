@@ -32,7 +32,7 @@ func ValidateToken(tokenStr string) (*jwt.Token, error) {
 
 	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("singing invalid")
+			return nil, errors.New("signing invalid")
 		}
 		return mySigningKey, nil
 	})
