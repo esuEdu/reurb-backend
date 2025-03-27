@@ -48,11 +48,11 @@ func (handler *UserHandler) AuthenticateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := handler.Service.AuthenticateUser(input.Email, input.Password)
+	token, err := handler.Service.AuthenticateUser(input.Email, input.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Authenticated successfully", "user": user})
+	c.JSON(http.StatusOK, gin.H{"message": "Authenticated successfully", "token": token})
 }

@@ -14,5 +14,5 @@ func main() {
 
 	routes.SetupRoutes(r, db)
 
-	r.Run()
+	r.Run(":8080")
 }

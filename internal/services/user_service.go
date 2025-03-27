@@ -5,12 +5,14 @@ import (
 
 	"github.com/esuEdu/reurb-backend/internal/models"
 	"github.com/esuEdu/reurb-backend/internal/repositories"
+	"github.com/esuEdu/reurb-backend/internal/util"
 	"golang.org/x/crypto/bcrypt"
+	"strconv"
 )
 
 type UserService interface {
 	RegisterUser(name, email, password string) (*models.User, error)
-	AuthenticateUser(email, password string) (*models.User, error)
+	AuthenticateUser(email, password string) (string, error)
 }
 
 type userService struct {
@@ -47,18 +49,23 @@ func (service *userService) RegisterUser(name, email, password string) (*models.
 
 }
 
-func (service *userService) AuthenticateUser(email, password string) (*models.User, error) {
+func (service *userService) AuthenticateUser(email, password string) (string, error) {
 	user, err := service.repo.FindByEmail(email)
 	if err != nil {
-		return nil, errors.New("user not found")
+		return "", errors.New("user not found")
 	}
 
 	err = checkPasswordHash(password, user.Password)
 	if err != nil {
-		return nil, errors.New("wrong credential")
+		return "", errors.New("wrong credential")
 	}
 
-	return user, nil
+	token, err := util.GenerateToken(strconv.FormatUint(uint64(user.ID), 10))
+	if err != nil {
+		return "", errors.New("failed creating token")
+	}
+
+	return token, nil
 }
 
 func hashPassword(password string) (string, error) {

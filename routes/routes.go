@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/esuEdu/reurb-backend/internal/handlers"
+	"github.com/esuEdu/reurb-backend/internal/middleware"
 	"github.com/esuEdu/reurb-backend/internal/repositories"
 	"github.com/esuEdu/reurb-backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -19,8 +20,13 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	router.POST("/register", userHandler.RegisterUser)
 	router.POST("/login", userHandler.AuthenticateUser)
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "pong"})
-	})
+	authorized := router.Group("/")
+
+	authorized.Use(middleware.AuthMiddleware())
+	{
+		authorized.GET("/ping", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"message": "pong"})
+		})
+	}
 
 }
